@@ -6,10 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { LanguageToggle } from '@/components/LanguageToggle';
 import { Snowflakes } from '@/components/Snowflakes';
 import { useToast } from '@/hooks/use-toast';
-import { Gift, Loader2 } from 'lucide-react';
+import { Gift, Loader2, ArrowLeft, Mail, Lock } from 'lucide-react';
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
@@ -28,12 +27,12 @@ export default function Auth() {
     e.preventDefault();
     
     if (!email || !password) {
-      toast({ title: t('error'), description: 'Please fill all fields', variant: 'destructive' });
+      toast({ title: t('error'), description: 'Preencha todos os campos', variant: 'destructive' });
       return;
     }
     
     if (isSignup && password !== confirmPassword) {
-      toast({ title: t('error'), description: 'Passwords do not match', variant: 'destructive' });
+      toast({ title: t('error'), description: 'As senhas não conferem', variant: 'destructive' });
       return;
     }
     
@@ -42,7 +41,7 @@ export default function Auth() {
     try {
       if (isSignup) {
         await signup(email, password);
-        toast({ title: t('success'), description: 'Account created successfully!' });
+        toast({ title: t('success'), description: 'Conta criada com sucesso!' });
       } else {
         await login(email, password);
       }
@@ -50,7 +49,7 @@ export default function Auth() {
     } catch (error) {
       toast({ 
         title: t('error'), 
-        description: error instanceof Error ? error.message : 'An error occurred',
+        description: error instanceof Error ? error.message : 'Ocorreu um erro',
         variant: 'destructive'
       });
     } finally {
@@ -59,93 +58,120 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary/10 via-background to-primary/10 flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
       <Snowflakes />
       
-      {/* Header */}
-      <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-10">
-        <Link to="/" className="flex items-center gap-2">
-          <Gift className="h-6 w-6 text-primary" />
-          <span className="font-display text-lg font-bold">Secret Santa</span>
-        </Link>
-        <LanguageToggle />
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 -left-20 w-72 h-72 bg-secondary/10 rounded-full blur-3xl" />
       </div>
+      
+      {/* Header */}
+      <header className="relative z-10 px-4 sm:px-6 py-4 safe-area-top">
+        <Link to="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="h-4 w-4" />
+          <span className="text-sm font-medium">Voltar</span>
+        </Link>
+      </header>
 
-      <Card className="w-full max-w-md relative z-10 border-border/50 holiday-shadow">
-        <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-            <Gift className="h-8 w-8 text-primary" />
-          </div>
-          <CardTitle className="font-display text-2xl">
-            {isSignup ? t('signup') : t('login')}
-          </CardTitle>
-          <CardDescription>
-            {isSignup ? 'Create your account to start' : 'Welcome back!'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">{t('email')}</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">{t('password')}</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                disabled={isLoading}
-              />
-            </div>
-            {isSignup && (
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">{t('confirmPassword')}</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  disabled={isLoading}
-                />
-              </div>
-            )}
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : null}
-              {isSignup ? t('signup') : t('login')}
-            </Button>
-          </form>
+      {/* Main content */}
+      <main className="relative z-10 flex-1 flex items-center justify-center p-4 sm:p-6">
+        <Card className="w-full max-w-md glass-card border-0 rounded-3xl overflow-hidden">
+          {/* Gradient accent */}
+          <div className="h-1.5 gradient-holiday" />
           
-          <div className="mt-6 text-center text-sm">
-            <span className="text-muted-foreground">
-              {isSignup ? t('hasAccount') : t('noAccount')}
-            </span>{' '}
-            <button
-              type="button"
-              onClick={() => setIsSignup(!isSignup)}
-              className="text-primary hover:underline font-medium"
-            >
-              {isSignup ? t('login') : t('signup')}
-            </button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Decorative */}
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/20 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
-      <div className="absolute top-1/4 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl translate-x-1/2" />
+          <CardHeader className="text-center pt-8 pb-4">
+            <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mb-4 holiday-shadow">
+              <Gift className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
+            </div>
+            <CardTitle className="font-display text-2xl sm:text-3xl">
+              {isSignup ? t('signup') : t('login')}
+            </CardTitle>
+            <CardDescription className="text-base">
+              {isSignup ? t('createAccountDesc') : t('welcomeBack')}
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="pb-8 px-6 sm:px-8">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">{t('email')}</Label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="seu@email.com"
+                    disabled={isLoading}
+                    className="pl-11 h-12 rounded-xl border-border/50 focus:border-primary/50 transition-colors"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium">{t('password')}</Label>
+                <div className="relative">
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    disabled={isLoading}
+                    className="pl-11 h-12 rounded-xl border-border/50 focus:border-primary/50 transition-colors"
+                  />
+                </div>
+              </div>
+              
+              {isSignup && (
+                <div className="space-y-2 animate-fade-up">
+                  <Label htmlFor="confirmPassword" className="text-sm font-medium">{t('confirmPassword')}</Label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      disabled={isLoading}
+                      className="pl-11 h-12 rounded-xl border-border/50 focus:border-primary/50 transition-colors"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              <Button 
+                type="submit" 
+                className="w-full h-12 rounded-xl btn-primary-gradient text-base font-semibold mt-6" 
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                ) : null}
+                {isSignup ? t('signup') : t('login')}
+              </Button>
+            </form>
+            
+            <div className="mt-6 text-center text-sm">
+              <span className="text-muted-foreground">
+                {isSignup ? t('hasAccount') : t('noAccount')}
+              </span>{' '}
+              <button
+                type="button"
+                onClick={() => setIsSignup(!isSignup)}
+                className="text-primary hover:text-primary/80 font-semibold transition-colors"
+              >
+                {isSignup ? t('login') : t('signup')}
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
     </div>
   );
 }

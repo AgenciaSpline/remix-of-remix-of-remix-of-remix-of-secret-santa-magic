@@ -3,10 +3,9 @@ import { useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { LanguageToggle } from '@/components/LanguageToggle';
 import { Snowflakes } from '@/components/Snowflakes';
 import { getEventById, getParticipantsByEvent, drawName, Event, Participant } from '@/lib/nocodb';
-import { Gift, Loader2, Sparkles, PartyPopper } from 'lucide-react';
+import { Gift, Loader2, Sparkles, PartyPopper, AlertCircle } from 'lucide-react';
 
 export default function Draw() {
   const { id } = useParams<{ id: string }>();
@@ -42,7 +41,7 @@ export default function Draw() {
         setAllDrawn(true);
       }
     } catch (err) {
-      setError('Event not found');
+      setError(t('eventNotFound'));
     } finally {
       setIsLoading(false);
     }
@@ -70,80 +69,93 @@ export default function Draw() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-secondary/20 via-background to-primary/20">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary/20 via-background to-primary/20 flex flex-col relative overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
       <Snowflakes />
       
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/15 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 -left-20 w-80 h-80 bg-secondary/15 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl" />
+      </div>
+      
       {/* Header */}
-      <header className="relative z-10 p-6 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Gift className="h-6 w-6 text-primary" />
-          <span className="font-display text-lg font-bold">{t('secretSanta')}</span>
+      <header className="relative z-10 p-4 sm:p-6 safe-area-top">
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Gift className="h-5 w-5 text-primary" />
+          </div>
+          <span className="font-display text-lg sm:text-xl font-bold">{t('secretSanta')}</span>
         </div>
-        <LanguageToggle />
       </header>
 
       {/* Main */}
-      <main className="relative z-10 flex-1 flex items-center justify-center p-6">
-        <Card className="w-full max-w-md border-border/50 holiday-shadow overflow-hidden">
-          {/* Header decoration */}
-          <div className="h-2 gradient-holiday" />
+      <main className="relative z-10 flex-1 flex items-center justify-center p-4 sm:p-6">
+        <Card className="w-full max-w-sm glass-card border-0 rounded-3xl overflow-hidden holiday-shadow-lg">
+          {/* Gradient accent */}
+          <div className="h-1.5 gradient-holiday" />
           
-          <CardContent className="pt-8 pb-10 text-center">
+          <CardContent className="p-6 sm:p-8 text-center">
             {event && (
-              <p className="text-muted-foreground mb-6">{event.name}</p>
+              <p className="text-muted-foreground mb-6 sm:mb-8 font-medium">{event.name}</p>
             )}
 
+            {/* Error State */}
             {error && !allDrawn && !drawnPerson && (
-              <div className="mb-6">
-                <div className="w-20 h-20 mx-auto rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-                  <Gift className="h-10 w-10 text-destructive" />
+              <div className="animate-fade-up">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-2xl bg-destructive/10 flex items-center justify-center mb-6">
+                  <AlertCircle className="h-10 w-10 sm:h-12 sm:w-12 text-destructive" />
                 </div>
-                <p className="text-destructive">{error}</p>
+                <p className="text-destructive font-medium">{error}</p>
               </div>
             )}
 
+            {/* All Drawn State */}
             {allDrawn && !drawnPerson && (
-              <div className="animate-fade-in">
-                <div className="w-20 h-20 mx-auto rounded-full bg-muted flex items-center justify-center mb-6">
-                  <Gift className="h-10 w-10 text-muted-foreground" />
+              <div className="animate-fade-up">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 mx-auto rounded-2xl bg-muted flex items-center justify-center mb-6">
+                  <Gift className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground" />
                 </div>
-                <h2 className="font-display text-2xl font-bold mb-2">{t('allDrawn')}</h2>
+                <h2 className="font-display text-xl sm:text-2xl font-bold mb-2">{t('allDrawn')}</h2>
               </div>
             )}
 
+            {/* Success State - Drawn Name */}
             {drawnPerson && (
-              <div className="animate-scale-in">
-                <div className="w-24 h-24 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-6 glow-gold animate-float">
-                  <PartyPopper className="h-12 w-12 text-primary" />
+              <div className="animate-scale-up">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-6 glow-gold animate-pulse-soft">
+                  <PartyPopper className="h-12 w-12 sm:h-14 sm:w-14 text-primary" />
                 </div>
-                <p className="text-muted-foreground mb-2">{t('yourSecretFriend')}</p>
-                <h2 className="font-display text-4xl font-bold text-gradient mb-6">
+                <p className="text-muted-foreground mb-3">{t('yourSecretFriend')}</p>
+                <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-gradient mb-6 leading-tight">
                   {drawnPerson.name}
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground bg-muted/50 rounded-xl p-4">
                   {t('keepSecret')}
                 </p>
               </div>
             )}
 
+            {/* Initial State - Ready to Draw */}
             {!drawnPerson && !allDrawn && !error && (
-              <div className="animate-fade-in">
-                <div className="w-24 h-24 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-6 animate-float">
-                  <Gift className="h-12 w-12 text-primary" />
+              <div className="animate-fade-up">
+                <div className="w-24 h-24 sm:w-28 sm:h-28 mx-auto rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center mb-6 sm:mb-8 animate-float holiday-shadow">
+                  <Gift className="h-12 w-12 sm:h-14 sm:w-14 text-primary" />
                 </div>
-                <h2 className="font-display text-2xl font-bold mb-6">{t('secretSanta')}</h2>
+                <h2 className="font-display text-2xl sm:text-3xl font-bold mb-2">{t('secretSanta')}</h2>
+                <p className="text-muted-foreground mb-6 sm:mb-8">Clique no botão para descobrir seu amigo secreto!</p>
                 <Button
                   size="lg"
                   onClick={handleDraw}
                   disabled={isDrawing}
-                  className="px-8 hover:scale-105 transition-transform"
+                  className="w-full sm:w-auto px-10 py-6 text-lg rounded-2xl btn-primary-gradient hover:scale-105 transition-all duration-300"
                 >
                   {isDrawing ? (
                     <>
@@ -163,9 +175,8 @@ export default function Draw() {
         </Card>
       </main>
 
-      {/* Decorative */}
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/30 rounded-full blur-3xl -translate-x-1/2 translate-y-1/2" />
-      <div className="absolute top-1/4 right-0 w-96 h-96 bg-primary/30 rounded-full blur-3xl translate-x-1/2" />
+      {/* Footer decoration */}
+      <div className="relative z-10 h-8 safe-area-bottom" />
     </div>
   );
 }
